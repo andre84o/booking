@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📅 Booking Calendar
 
-## Getting Started
+En komplett bokningskalender-lösning för Next.js-applikationer med kalender, tidsplatser och bokningshantering.
 
-First, run the development server:
+## ✨ Funktioner
 
+- 📆 **Interaktiv kalender** - Välj datum med visuell feedback
+- ⏰ **Tidsintervaller** - Anpassningsbara tidsplatser (09:00-18:00)
+- 📝 **Bokningsformulär** - Validering av namn, e-post, telefon
+- 📋 **Bokningslista** - Visa och hantera alla bokningar
+- ✏️ **Redigera bokningar** - Ändra datum och tid för befintliga bokningar
+- 🚫 **Dubbelbokningsskydd** - Förhindrar överlappande bokningar
+- 💾 **LocalStorage** - Automatisk sparning i webbläsaren
+- 🎨 **Dark mode** - Stöd för mörkt tema
+- 📱 **Responsiv** - Fungerar på alla skärmstorlekar
+- 🔔 **Popup-meddelanden** - Snygga bekräftelser istället för alerts
+
+## 📦 Installation
+
+### Alternativ 1: Lokal installation med npm link
+
+I booking-projektet:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd C:/A-project/25webapplication/booking
+npm run build:package
+npm link
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+I ditt andra projekt:
+```bash
+npm link @yourname/booking-calendar
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Alternativ 2: Från lokal fil
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install file:../25webapplication/booking
+```
 
-## Learn More
+### Alternativ 3: Från npm (efter publicering)
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install @yourname/booking-calendar
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Snabbstart
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 1. Hela booking-appen (enklaste sättet)
 
-## Deploy on Vercel
+```tsx
+// app/booking/page.tsx
+'use client';
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+import { BookingApp } from '@yourname/booking-calendar';
+import '@yourname/booking-calendar/styles';
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+export default function BookingPage() {
+  return <BookingApp />;
+}
+```
+
+### 2. Anpassa Tailwind CSS
+
+Se till att din `tailwind.config.js` inkluderar paketet:
+
+```js
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './node_modules/@yourname/booking-calendar/**/*.{js,ts,jsx,tsx}',
+  ],
+  // ... resten av din config
+}
+```
+
+## 📋 API Reference
+
+Se [API Documentation](./docs/API.md) för fullständig dokumentation.
+
+## 🔧 Utveckling
+
+Starta utvecklingsservern:
+```bash
+npm run dev
+```
+
+Bygg paketet för distribution:
+```bash
+npm run build:package
+```
+
+## 📄 Licens
+
+MIT
+
+---
+
+Built with ❤️ using Next.js, React, TypeScript and Tailwind CSS
+# booking
