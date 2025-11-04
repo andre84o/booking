@@ -1,12 +1,49 @@
 {
-  "name": "booking",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@yourname/booking-calendar",
+  "version": "1.0.0",
+  "description": "A complete booking calendar system for Next.js applications with calendar, time slots, and booking management",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "app/components",
+    "app/lib",
+    "app/types",
+    "app/globals.css",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": "./app/globals.css"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:package": "tsc --project tsconfig.package.json",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prepublishOnly": "npm run build:package"
+  },
+  "keywords": [
+    "booking",
+    "calendar",
+    "next.js",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "scheduling",
+    "appointment"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "next": ">=14.0.0"
   },
   "dependencies": {
     "react": "19.2.0",
@@ -22,5 +59,9 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/booking-calendar"
   }
 }

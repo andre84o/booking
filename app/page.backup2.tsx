@@ -1,25 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Calendar from './components/Calendar';
-import DualCalendar from './components/DualCalendar';
 import TimeSlots from './components/TimeSlots';
 import BookingForm from './components/BookingForm';
 import BookingList from './components/BookingList';
 import Modal from './components/Modal';
 import EditBookingModal from './components/EditBookingModal';
 import { storage } from './lib/storage';
-import { Booking, Settings } from './types/booking';
+import { Booking } from './types/booking';
 import { formatDate } from './lib/utils';
 
 export default function Home() {
-  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [settings, setSettings] = useState<Settings | null>(null);
   const [activeTab, setActiveTab] = useState<'book' | 'list'>('book');
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
@@ -36,19 +32,8 @@ export default function Home() {
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
-    // Load bookings and settings from localStorage when component mounts
+    // Load bookings from localStorage when component mounts
     setBookings(storage.getBookings());
-    setSettings(storage.getSettings());
-
-    // Listen for settings changes
-    const handleSettingsChange = () => {
-      setSettings(storage.getSettings());
-    };
-    window.addEventListener('settingsChanged', handleSettingsChange);
-
-    return () => {
-      window.removeEventListener('settingsChanged', handleSettingsChange);
-    };
   }, []);
 
   const showModal = (
@@ -73,20 +58,6 @@ export default function Home() {
   };
 
   const handleBookingSubmit = (bookingData: Omit<Booking, 'id' | 'createdAt'>) => {
-    // Final validation: check if the time slot is still available
-    const isSlotTaken = bookings.some(
-      b => b.date === bookingData.date && b.timeSlot === bookingData.timeSlot
-    );
-
-    if (isSlotTaken) {
-      showModal(
-        'Dubbel bokning',
-        'Tyvärr, denna tid är redan bokad. Vänligen välj en annan tid.',
-        'error'
-      );
-      return;
-    }
-
     const newBooking: Booking = {
       ...bookingData,
       id: crypto.randomUUID(),
@@ -156,59 +127,30 @@ export default function Home() {
     );
   };
 
-  const handleBookingEdit = (booking: Booking) => {
-    setEditBooking(booking);
-    setEditModalOpen(true);
-  };
-
-  const handleBookingUpdate = (updatedBooking: Booking) => {
-    storage.updateBooking(updatedBooking.id, updatedBooking);
-    setBookings(storage.getBookings());
-    setEditModalOpen(false);
-    setEditBooking(null);
-
-    showModal(
-      'Bokning uppdaterad!',
-      'Din bokning har uppdaterats.',
-      'success'
-    );
-  };
-
   const bookedDates = Array.from(new Set(bookings.map(b => b.date)));
 
   return (
-    <div className="min-h-screen bg-white dark:from-zinc-900 dark:to-zinc-800 dark:bg-gradient-to-br py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-zinc-900 dark:to-zinc-800 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 relative">
-          <h1 className="text-4xl font-bold text-black dark:text-white mb-2">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-2">
             Bookningskalender
           </h1>
-          <p className="text-zinc-700 dark:text-zinc-400">
+          <p className="text-zinc-600 dark:text-zinc-400">
             Boka tid enkelt och smidigt
           </p>
-          {/* Settings button */}
-          <button
-            onClick={() => router.push('/settings')}
-            className="absolute top-0 right-0 p-2 text-zinc-700 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
-            title="Inställningar"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
         </div>
 
         {/* Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg shadow-md p-1 inline-flex border border-zinc-200 dark:border-zinc-800">
+          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md p-1 inline-flex">
             <button
               onClick={() => setActiveTab('book')}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
                 activeTab === 'book'
-                  ? 'bg-red-500 text-white'
-                  : 'text-zinc-700 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
             >
               Boka tid
@@ -217,13 +159,13 @@ export default function Home() {
               onClick={() => setActiveTab('list')}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
                 activeTab === 'list'
-                  ? 'bg-red-500 text-white'
-                  : 'text-zinc-700 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
             >
               Mina bokningar
               {bookings.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs rounded-full">
+                <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs rounded-full">
                   {bookings.length}
                 </span>
               )}
@@ -234,20 +176,12 @@ export default function Home() {
         {/* Content */}
         {activeTab === 'book' ? (
           <div className="flex flex-col lg:flex-row gap-6 items-start justify-center">
-            {/* Calendar - Render based on settings */}
-            {settings?.calendarView === 'dual' ? (
-              <DualCalendar
-                onDateSelect={handleDateSelect}
-                selectedDate={selectedDate}
-                bookedDates={bookedDates}
-              />
-            ) : (
-              <Calendar
-                onDateSelect={handleDateSelect}
-                selectedDate={selectedDate}
-                bookedDates={bookedDates}
-              />
-            )}
+            {/* Calendar */}
+            <Calendar
+              onDateSelect={handleDateSelect}
+              selectedDate={selectedDate}
+              bookedDates={bookedDates}
+            />
 
             {/* Time slots or Booking form */}
             {selectedDate && !showForm && (
@@ -270,31 +204,31 @@ export default function Home() {
 
             {/* Instructions */}
             {!selectedDate && (
-              <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-6 border border-zinc-200 dark:border-zinc-800">
-                <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Hur bokar jag?</h3>
-                <ol className="space-y-3 text-sm text-zinc-700 dark:text-zinc-400">
+              <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Hur bokar jag?</h3>
+                <ol className="space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-zinc-200 dark:bg-zinc-700 text-black dark:text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-xs font-bold">
                       1
                     </span>
                     <span>Välj ett datum i kalendern</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-zinc-200 dark:bg-zinc-700 text-black dark:text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-xs font-bold">
                       2
                     </span>
                     <span>Välj en ledig tid</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-zinc-200 dark:bg-zinc-700 text-black dark:text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-xs font-bold">
                       3
                     </span>
                     <span>Fyll i dina uppgifter och bekräfta</span>
                   </li>
                 </ol>
 
-                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-900 dark:text-amber-200">
+                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
                     <strong>Observera:</strong> Bokningar måste göras minst 24 timmar i förväg.
                   </p>
                 </div>
@@ -303,12 +237,12 @@ export default function Home() {
           </div>
         ) : (
           <div className="flex justify-center">
-            <BookingList bookings={bookings} onDelete={handleBookingDelete} onEdit={handleBookingEdit} />
+            <BookingList bookings={bookings} onDelete={handleBookingDelete} />
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="mt-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
           <p>Har du frågor? Kontakta oss på info@exempel.se eller 070-123 45 67</p>
         </div>
 
@@ -321,21 +255,6 @@ export default function Home() {
         message={modalConfig.message}
         type={modalConfig.type}
         actions={modalConfig.actions}
-      />
-
-      {/* Edit Booking Modal */}
-      <EditBookingModal
-        booking={editBooking}
-        isOpen={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setEditBooking(null);
-        }}
-        onSave={handleBookingUpdate}
-        onError={(message) => {
-          showModal('Fel vid redigering', message, 'error');
-        }}
-        existingBookings={bookings}
       />
       </div>
     </div>
